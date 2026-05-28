@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 BLENDER_PATHS = [
+    "/home/wano/Tools/blender-5.1.2-linux-x64/blender",
     "/home/wano/Art/RenderFarm/blender-5.1.2-linux-x64/blender",
     "/usr/bin/blender",
     "/usr/local/bin/blender",

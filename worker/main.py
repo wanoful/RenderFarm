@@ -183,3 +183,7 @@ def main():
             time.sleep(POLL_INTERVAL)
 
     _shutdown()
+
+
+if __name__ == "__main__":
+    main()
