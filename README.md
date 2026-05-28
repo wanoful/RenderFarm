@@ -27,13 +27,12 @@ Edit `BLENDER_PATHS` in `worker/blender_runner.py` to add your own paths.
 
 ### 2. Configure users
 
-Edit `config/users.yaml`:
-
-```yaml
-users:
-  admin: your-password-here
-  collaborator: their-password
+```bash
+cp config/users.example.yaml config/users.yaml
+nano config/users.yaml
 ```
+
+Set your own passwords.
 
 ### 3. Start server
 
