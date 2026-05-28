@@ -1,0 +1,19 @@
+[Unit]
+Description=RenderFarm Worker
+After=network.target renderfarm-server.service
+
+[Service]
+Type=simple
+CPUSchedulingPolicy=idle
+Nice=19
+WorkingDirectory=/home/wano/Art/RenderFarm/worker
+Environment=RENDERFARM_SERVER=http://127.0.0.1:8000
+Environment=RENDERFARM_USER=worker
+Environment=RENDERFARM_PASS=worker
+Environment=RENDERFARM_WORKER=worker1
+ExecStart=/usr/bin/uv run python main.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

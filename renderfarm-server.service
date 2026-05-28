@@ -1,0 +1,13 @@
+[Unit]
+Description=RenderFarm Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/wano/Art/RenderFarm/server
+ExecStart=/usr/bin/uv run python main.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
