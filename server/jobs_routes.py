@@ -1,11 +1,9 @@
 import zipfile
-import os
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 
 from auth import get_current_user
@@ -93,47 +91,29 @@ def download_output(job_id: str, user: str = Depends(get_current_user)):
         raise HTTPException(404, "Job not found")
 
     out_dir = STORAGE_DIR / job_id
-    if not out_dir.exists():
+    if not out_dir.exists() or not list(out_dir.iterdir()):
         raise HTTPException(404, "No output yet")
 
-    files = list(out_dir.iterdir())
-    if not files:
-        raise HTTPException(404, "No output yet")
+    def generate():
+        import subprocess
+        with subprocess.Popen(
+            ["zip", "-rq", "-", "."],
+            cwd=str(out_dir),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        ) as proc:
+            while True:
+                chunk = proc.stdout.read(65536)
+                if not chunk:
+                    break
+                yield chunk
+            proc.wait()
 
-    zd, tmp_path = tempfile.mkstemp(suffix=".zip")
-    os.close(zd)
-    try:
-        with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            for f in files:
-                if f.is_file():
-                    zf.write(f, f.name)
-    except Exception:
-        os.unlink(tmp_path)
-        raise HTTPException(500, "Failed to create archive")
-
-    return StreamingFileResponse(
-        tmp_path,
+    return StreamingResponse(
+        generate(),
         media_type="application/zip",
         headers={"Content-Disposition": f"attachment; filename={job_id}_output.zip"},
-        cleanup=True,
     )
-
-
-class StreamingFileResponse(FileResponse):
-    def __init__(self, path, *, cleanup=False, **kwargs):
-        self._cleanup = cleanup
-        self._path = path
-        super().__init__(path, **kwargs)
-
-    async def __call__(self, scope, receive, send):
-        try:
-            await super().__call__(scope, receive, send)
-        finally:
-            if self._cleanup:
-                try:
-                    os.unlink(self._path)
-                except OSError:
-                    pass
 
 
 @router.delete("/{job_id}")

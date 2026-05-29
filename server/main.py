@@ -1,14 +1,12 @@
 import sys
-import zipfile
-import tempfile
-import os
+import subprocess
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, FileResponse, PlainTextResponse, Response
+from fastapi.responses import HTMLResponse, FileResponse, PlainTextResponse, StreamingResponse
 from auth import verify_password
 from models import init_db
 from jobs_routes import router as jobs_router
@@ -46,39 +44,10 @@ def browse_output(path: str = ""):
         parent = full.parent
         if not parent.is_dir():
             return PlainTextResponse("Not found", 404)
-        zd, tmp_path = tempfile.mkstemp(suffix=".zip")
-        os.close(zd)
-        try:
-            with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
-                for f in sorted(parent.iterdir()):
-                    if f.is_file():
-                        zf.write(f, f.name)
-        except Exception:
-            os.unlink(tmp_path)
-            return PlainTextResponse("Failed", 500)
-        return _cleanup_file_response(tmp_path, parent.name + ".zip")
+        return _stream_zip(parent, parent.name + ".zip")
 
     if not full.exists():
         return PlainTextResponse("Not found", 404)
-
-    if not full.exists():
-        return PlainTextResponse("Not found", 404)
-
-    if path.endswith("/_download.zip"):
-        parent = full.parent
-        if not parent.is_dir():
-            return PlainTextResponse("Not found", 404)
-        zd, tmp_path = tempfile.mkstemp(suffix=".zip")
-        os.close(zd)
-        try:
-            with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
-                for f in sorted(parent.iterdir()):
-                    if f.is_file() and f.name != "_download.zip":
-                        zf.write(f, f.name)
-        except Exception:
-            os.unlink(tmp_path)
-            return PlainTextResponse("Failed", 500)
-        return _cleanup_file_response(tmp_path, parent.name + ".zip")
 
     if full.is_file():
         return FileResponse(full)
@@ -104,22 +73,26 @@ def browse_output(path: str = ""):
     return HTMLResponse(html)
 
 
-def _cleanup_file_response(path: str, filename: str):
-    class CleanupResponse(FileResponse):
-        def __init__(self, p, fn):
-            self._tmp = p
-            super().__init__(p, filename=fn, media_type="application/zip")
+def _stream_zip(folder: Path, filename: str):
+    def generate():
+        with subprocess.Popen(
+            ["zip", "-rq", "-", ".", "-x", "_download.zip"],
+            cwd=str(folder),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        ) as proc:
+            while True:
+                chunk = proc.stdout.read(65536)
+                if not chunk:
+                    break
+                yield chunk
+            proc.wait()
 
-        async def __call__(self, scope, receive, send):
-            try:
-                await super().__call__(scope, receive, send)
-            finally:
-                try:
-                    os.unlink(self._tmp)
-                except OSError:
-                    pass
-
-    return CleanupResponse(path, filename)
+    return StreamingResponse(
+        generate(),
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
 
 
 app.include_router(jobs_router)
