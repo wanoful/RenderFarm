@@ -7,5 +7,6 @@ server/storage/
 shared-storage/
 
 RFAddon.zip
+dist/
 
 config/users.yaml

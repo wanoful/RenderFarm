@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/wano/Art/RenderFarm/server
+WorkingDirectory={{INSTALL_DIR}}/server
 ExecStart=/usr/bin/uv run python main.py
 Restart=on-failure
 RestartSec=5

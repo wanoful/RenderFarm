@@ -6,7 +6,7 @@ After=network.target renderfarm-server.service
 Type=simple
 CPUSchedulingPolicy=idle
 Nice=19
-WorkingDirectory=/home/wano/Art/RenderFarm/worker
+WorkingDirectory={{INSTALL_DIR}}/worker
 Environment=RENDERFARM_SERVER=http://127.0.0.1:8000
 Environment=RENDERFARM_USER=worker
 Environment=RENDERFARM_PASS=worker
