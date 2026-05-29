@@ -6,17 +6,17 @@ class RenderFarmPreferences(bpy.types.AddonPreferences):
 
     server_url: bpy.props.StringProperty(
         name="Server URL",
-        description="Wano's Render Farm server URL",
+        description="RenderFarm server URL",
         default="http://127.0.0.1:8000",
     )
     username: bpy.props.StringProperty(
         name="Username",
-        description="Your Wano's Render Farm username",
+        description="Your RenderFarm username",
         default="",
     )
     password: bpy.props.StringProperty(
         name="Password",
-        description="Your Wano's Render Farm password",
+        description="Your RenderFarm password",
         default="",
         subtype="PASSWORD",
     )

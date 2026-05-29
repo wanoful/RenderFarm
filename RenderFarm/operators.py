@@ -65,7 +65,7 @@ def _active_job_id(scene) -> str:
 
 class RENDERFARM_OT_submit(bpy.types.Operator):
     bl_idname = "renderfarm.submit"
-    bl_label = "Submit to Wano's Render Farm"
+    bl_label = "Submit to RenderFarm"
     bl_description = "Pack and submit the current file to the render farm"
     bl_options = {"REGISTER"}
 
