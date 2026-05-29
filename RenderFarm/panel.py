@@ -86,9 +86,10 @@ class RENDERFARM_PT_main(bpy.types.Panel):
 
         layout.separator()
 
-            row = layout.row(align=True)
-            row.operator("renderfarm.browse", icon="FILE_FOLDER")
-            row.operator("renderfarm.delete_job", icon="TRASH")
+        row = layout.row(align=True)
+        row.operator("renderfarm.download", icon="IMPORT")
+        row.operator("renderfarm.open_output_dir", icon="FILE_FOLDER")
+        row.operator("renderfarm.delete_job", icon="TRASH")
 
 
 def _sync_job_items(scene):
