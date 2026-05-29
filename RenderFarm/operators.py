@@ -1,6 +1,8 @@
 import base64
 import json
 import os
+import platform
+import subprocess
 import tempfile
 import zipfile
 from pathlib import Path
@@ -19,6 +21,13 @@ def _auth_header() -> str:
 def _server() -> str:
     prefs = bpy.context.preferences.addons[__package__].preferences
     return prefs.server_url.rstrip("/")
+
+
+def _get_output_dir(job_id: str) -> Path:
+    prefs = bpy.context.preferences.addons[__package__].preferences
+    if prefs.output_dir:
+        return Path(bpy.path.abspath(prefs.output_dir)) / job_id
+    return Path(bpy.path.abspath("//")) / "renderfarm_output" / job_id
 
 
 def _call(method: str, path: str, body=None, files=None, timeout=120):
@@ -157,10 +166,52 @@ class RENDERFARM_OT_refresh(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class RENDERFARM_OT_browse(bpy.types.Operator):
-    bl_idname = "renderfarm.browse"
-    bl_label = "Browse Output"
-    bl_description = "Open the output folder in a browser"
+class RENDERFARM_OT_download(bpy.types.Operator):
+    bl_idname = "renderfarm.download"
+    bl_label = "Download Output"
+    bl_description = "Download and save the rendered output for the selected job"
+
+    @classmethod
+    def poll(cls, context):
+        return len(context.scene.renderfarm_job_items) > 0
+
+    def execute(self, context):
+        job_id = _active_job_id(context.scene)
+        if not job_id:
+            return {"CANCELLED"}
+
+        try:
+            url = f"{_server()}/api/jobs/{job_id}/output"
+            req = request.Request(url, method="GET")
+            req.add_header("Authorization", _auth_header())
+            resp = request.urlopen(req, timeout=120)
+            data = resp.read()
+        except error.HTTPError as e:
+            self.report({"ERROR"}, f"No output yet ({e.code})")
+            return {"CANCELLED"}
+        except Exception as e:
+            self.report({"ERROR"}, f"Cannot reach server: {e}")
+            return {"CANCELLED"}
+
+        out_dir = _get_output_dir(job_id)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        tmp_path = tempfile.mktemp(suffix=".zip")
+        with open(tmp_path, "wb") as f:
+            f.write(data)
+
+        with zipfile.ZipFile(tmp_path, "r") as zf:
+            zf.extractall(out_dir)
+        os.unlink(tmp_path)
+
+        self.report({"INFO"}, f"Saved to {out_dir}")
+        return {"FINISHED"}
+
+
+class RENDERFARM_OT_open_output_dir(bpy.types.Operator):
+    bl_idname = "renderfarm.open_output_dir"
+    bl_label = "Open Output Folder"
+    bl_description = "Open the folder containing the rendered output for the selected job"
 
     @classmethod
     def poll(cls, context):
@@ -172,7 +223,7 @@ class RENDERFARM_OT_browse(bpy.types.Operator):
             return {"CANCELLED"}
 
         import webbrowser
-        url = f"{_server()}/output/{job_id}"
+        url = f"{_server()}/output/{job_id}/"
         webbrowser.open(url)
         self.report({"INFO"}, f"Opened {url}")
         return {"FINISHED"}
@@ -211,7 +262,8 @@ class RENDERFARM_OT_delete_job(bpy.types.Operator):
 _classes = (
     RENDERFARM_OT_submit,
     RENDERFARM_OT_refresh,
-    RENDERFARM_OT_browse,
+    RENDERFARM_OT_download,
+    RENDERFARM_OT_open_output_dir,
     RENDERFARM_OT_delete_job,
 )
 

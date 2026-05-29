@@ -50,13 +50,13 @@ mkdir -p "$(dirname "$OUTPUT")"
 
 log "Packaging addon from $ADDON_SRC"
 
-cd "$ADDON_SRC"
+ADDON_NAME="$(basename "$ADDON_SRC")"
 if command -v zip &>/dev/null; then
-    zip -r "$OUTPUT" . -x "__pycache__/*" "*.pyc" ".DS_Store"
+    cd "$PROJECT_DIR"
+    zip -r "$OUTPUT" "$ADDON_NAME" -x "$ADDON_NAME/__pycache__/*" "*.pyc" "*.DS_Store"
 else
     echo "ERROR: 'zip' command not found. Install it with your package manager."
     exit 1
 fi
-cd "$PROJECT_DIR"
 
 log "Addon packaged: $OUTPUT"
