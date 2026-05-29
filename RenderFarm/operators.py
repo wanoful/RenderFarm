@@ -172,7 +172,7 @@ class RENDERFARM_OT_browse(bpy.types.Operator):
             return {"CANCELLED"}
 
         import webbrowser
-        url = f"{_server()}/output/{job_id}/"
+        url = f"{_server()}/output/{job_id}"
         webbrowser.open(url)
         self.report({"INFO"}, f"Opened {url}")
         return {"FINISHED"}
