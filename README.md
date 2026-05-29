@@ -7,7 +7,7 @@ A self-hosted Blender render farm with HTTP Basic Auth, safe output isolation, a
 ```
 Blender Addon (submit)  →  FastAPI Server (queue)  →  Worker (render GPU)
        ↓                         ↓                          ↓
-   RFAddon/                  server/                    worker/
+    RenderFarm/                  server/                    worker/
 ```
 
 ## Quick Start
@@ -58,8 +58,8 @@ Environment variables:
 
 ### 5. Install Blender addon
 
-Copy `RFAddon/` to `~/.config/blender/<version>/scripts/addons/RFAddon/`, then enable it
-in Blender: Edit > Preferences > Add-ons > RenderFarm.
+Copy `RenderFarm/` to `~/.config/blender/<version>/scripts/addons/RenderFarm/`, then enable it
+in Blender: Edit > Preferences > Add-ons > Wano's Render Farm.
 
 In the addon preferences, set:
 
@@ -72,8 +72,8 @@ In the addon preferences, set:
 ### 6. Submit a job
 
 1. Open a .blend file
-2. Go to Output Properties > RenderFarm panel
-3. Click **Submit to Farm**
+2. Go to Output Properties > Wano's Render Farm panel
+3. Click **Submit to Wano's Farm**
 4. Enter job name, confirm frame range
 5. Click **Refresh** to monitor progress
 6. Click **Download** when complete

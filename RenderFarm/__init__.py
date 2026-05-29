@@ -1,10 +1,10 @@
 bl_info = {
-    "name": "RenderFarm",
-    "author": "RenderFarm",
+    "name": "Wano's Render Farm",
+    "author": "Wano",
     "version": (1, 0, 0),
     "blender": (4, 0, 0),
-    "location": "Output Properties > RenderFarm",
-    "description": "Submit renders to the RenderFarm server",
+    "location": "Output Properties > Wano's Render Farm",
+    "description": "Submit renders to Wano's Render Farm",
     "category": "Render",
 }
 

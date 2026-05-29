@@ -6,7 +6,7 @@ __pycache__/
 server/storage/
 shared-storage/
 
-RFAddon.zip
+RenderFarm.zip
 dist/
 
 config/users.yaml

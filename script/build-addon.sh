@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-ADDON_SRC="$PROJECT_DIR/RFAddon"
+ADDON_SRC="$PROJECT_DIR/RenderFarm"
 DIST_DIR="$PROJECT_DIR/dist"
 
 GREEN='\033[0;32m'
@@ -19,7 +19,7 @@ Usage: $(basename "$0") [OPTIONS]
 Package the Blender addon into a distributable .zip file.
 
 Options:
-  -o, --output FILE     Output path (default: dist/RFAddon.zip)
+  -o, --output FILE     Output path (default: dist/RenderFarm.zip)
   -h, --help            Show this help
 EOF
     exit 0
@@ -42,7 +42,7 @@ fi
 
 if [[ -z "$OUTPUT" ]]; then
     mkdir -p "$DIST_DIR"
-    OUTPUT="$DIST_DIR/RFAddon.zip"
+    OUTPUT="$DIST_DIR/RenderFarm.zip"
 fi
 
 OUTPUT="$(cd "$(dirname "$OUTPUT")" && pwd)/$(basename "$OUTPUT")"

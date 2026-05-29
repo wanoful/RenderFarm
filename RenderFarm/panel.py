@@ -46,7 +46,7 @@ class RenderFarmJobItem(bpy.types.PropertyGroup):
 
 
 class RENDERFARM_PT_main(bpy.types.Panel):
-    bl_label = "RenderFarm"
+    bl_label = "Wano's Render Farm"
     bl_idname = "RENDERFARM_PT_main"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -64,7 +64,7 @@ class RENDERFARM_PT_main(bpy.types.Panel):
 
         row = layout.row(align=True)
         row.scale_y = 1.5
-        op = row.operator("renderfarm.submit", icon="EXPORT", text="Submit to Farm")
+        op = row.operator("renderfarm.submit", icon="EXPORT", text="Submit to Wano's Farm")
         row.operator("renderfarm.refresh", icon="FILE_REFRESH", text="")
 
         layout.separator()
